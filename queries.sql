@@ -115,3 +115,92 @@ SELECT *
 FROM public."Orders"
 WHERE client_id = 2
 ORDER BY ID ASC;
+
+/*TASK 1 PART 2*/
+SELECT MIN(discount) AS min_discount
+FROM public."Clients";
+
+SELECT MAX(discount) AS max_discount
+FROM public."Clients";
+
+SELECT *
+FROM public."Clients"
+WHERE discount = (SELECT MIN(discount) FROM public."Clients");
+
+SELECT *
+FROM public."Clients"
+WHERE discount = (SELECT MAX(discount) FROM public."Clients");
+
+SELECT AVG(discount) AS avg_discount
+FROM public."Clients";
+
+/*TASK 2 PART 2*/
+SELECT *
+FROM public."Clients"
+ORDER BY birth_date DESC
+LIMIT 1;
+
+SELECT *
+FROM public."Clients"
+ORDER BY birth_date ASC
+LIMIT 1;
+
+SELECT *
+FROM public."Clients"
+WHERE EXTRACT(MONTH FROM birth_date) = EXTRACT(MONTH FROM CURRENT_DATE)
+  AND EXTRACT(DAY FROM birth_date) = EXTRACT(DAY FROM CURRENT_DATE);
+
+SELECT *
+FROM public."Clients"
+WHERE address IS NULL OR TRIM(address) = '';
+
+/*TASK 3 PART 2*/
+SELECT *
+FROM public."Orders"
+WHERE order_date = '2024-01-01';
+
+SELECT *
+FROM public."Orders"
+WHERE order_date BETWEEN '2024-01-01' AND '2025-01-31';
+
+SELECT COUNT(*) AS dessert_orders_count
+FROM public."Orders"
+WHERE order_date = '2024-01-01'
+  AND dessert_id IS NOT NULL;
+
+SELECT COUNT(*) AS drink_orders_count
+FROM public."Orders"
+WHERE order_date = '2024-01-01'
+  AND drink_id IS NOT NULL;
+
+/*TASK 4 PART 2*/
+SELECT clients.*, staff.*
+FROM public."Orders" orders
+JOIN public."Clients" clients ON o.client_id = clients.id
+JOIN public."Staff" staff ON o.staff_id = staff.id
+WHERE orders.order_date = '2024-01-01'
+  AND orders.drink_id IS NOT NULL
+  AND staff.position_id = 1;
+
+SELECT AVG(COALESCE(drinks.price, 0) + COALESCE(desserts.price, 0)) AS avg_order_sum
+FROM public."Orders" orders
+LEFT JOIN public."Drinks" drinks ON orders.drink_id = drinks.id
+LEFT JOIN public."Desserts" desserts ON orders.dessert_id = desserts.id
+WHERE orders.order_date = '2024-01-01';
+
+SELECT MAX(COALESCE(drinks.price, 0) + COALESCE(desserts.price, 0)) AS max_order_sum
+FROM public."Orders" orders
+LEFT JOIN public."Drinks" drinks ON orders.drink_id = drinks.id
+LEFT JOIN public."Desserts" desserts ON orders.dessert_id = desserts.id
+WHERE orders.order_date = '2024-01-01';
+
+SELECT clients.*, (COALESCE(drinks.price, 0) + COALESCE(desserts.price, 0)) AS order_sum
+FROM public."Orders" orders
+JOIN public."Clients" clients ON orders.client_id = clients.id
+LEFT JOIN public."Drinks" drinks ON orders.drink_id = drinks.id
+LEFT JOIN public."Desserts" desserts ON orders.dessert_id = desserts.id
+WHERE orders.order_date = '2025-02-01'
+ORDER BY order_sum DESC
+LIMIT 1;
+
+
